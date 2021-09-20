@@ -23,7 +23,7 @@
          */
         public function readNameByNumber($pdo) {
             //returns the name if found, false otherwise
-            $stmt = $pdo->prepare ("select name from agent where agentNumber=?");
+            $stmt = $pdo->prepare ("SELECT name FROM agent WHERE agentNumber=?");
             $stmt->execute([$this->getNumber()]);
             $row = $stmt->fetch();
             if($row != null){
@@ -35,7 +35,7 @@
         
         public function readIdByNumber($pdo) {
              //returns the aid if found, false otherwise
-            $stmt = $pdo->prepare ("select aid from agent where agentNumber=?");
+            $stmt = $pdo->prepare ("SELECT aid FROM agent WHERE agentNumber=?");
             $stmt->execute([$this->getNumber()]);
             $row = $stmt->fetch();
             if($row != null){

@@ -52,7 +52,7 @@
             default:
                 $ussdLevel = count($textArray) - 1;
                 $menu->persistInvalidEntry($sessionId,$user, $ussdLevel,$pdo);
-                echo "CON Inavalid menu\n" . $menu->mainMenuRegistered($user->readName($pdo));
+                echo "CON Invalid menu\n" . $menu->mainMenuRegistered($user->readName($pdo));
         }
     }
 

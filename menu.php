@@ -131,7 +131,7 @@
                     return;
                 }
                 if($user->checkBalance($pdo) < $textArray[2] + Util::$TRANSACTION_FEE){
-                    echo "END You have inssufucient funds";
+                    echo "END You have insufficient funds";
                     return;
                 }
 
@@ -142,7 +142,7 @@
                 $newBalance = $user->checkBalance($pdo) - $textArray[2] - Util::$TRANSACTION_FEE;
                 $result = $txn->withDrawCash($pdo, $user->readUserId($pdo), $agent->readIdByNumber($pdo), $newBalance);
                 if($result == true){
-                    echo "END Your request is being processsed";
+                    echo "END Your request is being processed";
                 }else{
                     echo "END ". $result;
                 }
@@ -211,13 +211,13 @@
 
 
         public function persistInvalidEntry ($sessionId,$user, $ussdLevel,$pdo){
-            $stmt = $pdo->prepare("insert into ussdsession (sessionId,ussdLevel, uid) values (?,?,?)");
+            $stmt = $pdo->prepare("INSERT INTO ussdsession (sessionId,ussdLevel, uid) VALUES (?,?,?)");
             $stmt->execute([$sessionId, $ussdLevel, $user->readUserId($pdo)]);
             $stmt= null;
         }
 
         public function invalidEntry($ussdStr, $user, $sessionId, $pdo){
-            $stmt = $pdo->prepare("select ussdLevel from ussdsession where sessionId=?");
+            $stmt = $pdo->prepare("SELECT ussdLevel FROM ussdsession WHERE sessionId=?");
             $stmt->execute([$sessionId]);
             $result = $stmt->fetchAll();
 

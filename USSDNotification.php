@@ -19,11 +19,9 @@
    
     function saveUssdNotification($pdo,$date, $sessionId,$serviceCode,$networkCode, 
     $phoneNumber, $status,$cost, $durationInMillis,$input,$lastAppResponse,$errorMessage){
-        $stmt = $pdo->prepare('insert into ussdnotifications (date_,sessionId,serviceCode,networkCode,
-        phoneNumber,status,cost,durationInMillis,input,lastAppResponse,errorMessage) 
-        values (?,?,?,?,?,?,?,?,?,?,?)');
-        $stmt->execute([$date,$sessionId,$serviceCode,$networkCode, $phoneNumber,$status,
-        $cost,$durationInMillis,$input,$lastAppResponse,$errorMessage]);
+        $stmt = $pdo->prepare('INSERT INTO ussdnotifications (date_,sessionId,serviceCode,networkCode, phoneNumber,status,cost,durationInMillis,input,lastAppResponse,errorMessage) 
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+        $stmt->execute([$date,$sessionId,$serviceCode,$networkCode, $phoneNumber,$status, $cost,$durationInMillis,$input,$lastAppResponse,$errorMessage]);
         $stmt=null;
     }
 ?>

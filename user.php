@@ -45,7 +45,7 @@
            try{
                 //hash the pin 
                 $hashedPin = password_hash($this->getPin(), PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO user (name, pin, phone, balance) values(?,?,?,?)");
+                $stmt = $pdo->prepare("INSERT INTO user (name, pin, phone, balance) VALUES(?,?,?,?)");
                 $stmt->execute([$this->getName(),$hashedPin, $this->getPhone(),$this->getBalance()]);
                 //send an sms to a user 
                 //$sms = new Sms($this->getPhone());
@@ -74,14 +74,14 @@
         }
 
         public function readUserId($pdo){
-           $stmt = $pdo->prepare("SELECT uid FROM user where phone=?");
+           $stmt = $pdo->prepare("SELECT uid FROM user WHERE phone=?");
            $stmt->execute([$this->getPhone()]);
            $row = $stmt->fetch();
            return $row['uid'];
         }
 
         public function correctPin($pdo){
-           $stmt = $pdo->prepare("select pin from user where phone=?");
+           $stmt = $pdo->prepare("SELECT pin FROM user WHERE phone=?");
            $stmt->execute([$this->getPhone()]);
            $row = $stmt->fetch();
            if($row == null){
@@ -96,7 +96,7 @@
         }
 
         public function checkBalance($pdo){
-            $stmt = $pdo->prepare("select balance from user where phone=?");
+            $stmt = $pdo->prepare("SELECT balance FROM user WHERE phone=?");
             $stmt->execute([$this->getPhone()]);
             $row = $stmt->fetch();
             return $row['balance'];

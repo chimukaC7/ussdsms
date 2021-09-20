@@ -38,7 +38,7 @@
             $db = new DBConnector();
             $pdo = $db->connectToDB();
             //prepare an sql query 
-            $stmt = $pdo->prepare('select phone from user');
+            $stmt = $pdo->prepare('SELECT phone FROM user');
             $stmt->execute();
             $result = $stmt->fetchAll();
             //hopinf that there were records to simplify logic
@@ -51,14 +51,14 @@
         }
 
         public function subscribeUser ($pdo, $shortcode, $keyword){
-            $stmt = $pdo->prepare('insert into subscribers (phoneNumber, shortcode,keyword,isActive) values(?,?,?,?)');
+            $stmt = $pdo->prepare('INSERT INTO subscribers (phoneNumber, shortcode,keyword,isActive) VALUES(?,?,?,?)');
             $stmt->execute([$this->getPhone(), $shortcode, $keyword, 1]);
             $stmt = null;
         }
 
 
         public function unSubscribeUser($pdo, $shortcode, $keyword){
-            $stmt = $pdo->prepare('update subscribers set isActive=? where phoneNumber=? and shortcode=? and keyword=?');
+            $stmt = $pdo->prepare('UPDATE subscribers SET isActive=? WHERE phoneNumber=? AND shortcode=? AND keyword=?');
             $stmt->execute([0,$this->getPhone(),$shortcode, $keyword]);
             $stmt = null;
         }
@@ -76,7 +76,7 @@
         }
 
         public function fetchActivePhoneNumbers ($pdo, $shortcode, $keyword){
-            $stmt= $pdo->prepare('select phoneNumber from subscribers where isActive=? and shortcode=? and keyword=?');
+            $stmt= $pdo->prepare('SELECT phoneNumber FROM subscribers WHERE isActive=? AND shortcode=? AND keyword=?');
             $stmt->execute([1, $shortcode, $keyword]);
             $activePhoneNumbers = $stmt->fetchAll();
             $recipients = array();

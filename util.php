@@ -11,11 +11,11 @@
         static $GO_TO_MAIN_MENU = "99";
 
         //user intial balance 
-        static $USER_BALANCE = ;
+        static $USER_BALANCE = 0.0;
 
         static $COUNTRY_CODE = "";
 
-        static $TRANSACTION_FEE = ;
+        static $TRANSACTION_FEE = 1.1;
 
         //static  $API_KEY = ""; //sandbox
         static  $API_KEY = ""; //prod

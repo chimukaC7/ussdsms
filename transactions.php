@@ -21,8 +21,8 @@
             $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, FALSE);
             try{
                 $pdo->beginTransaction();
-                $stmtT = $pdo->prepare("insert into transaction (amount, uid, ruid, ttype) values(?,?,?,?)");
-                $stmtU = $pdo->prepare("update user set balance=? where uid=?");
+                $stmtT = $pdo->prepare("INSERT INTO transaction (amount, uid, ruid, ttype) VALUES(?,?,?,?)");
+                $stmtU = $pdo->prepare("UPDATE USER SET balance=? WHERE uid=?");
 
                 $stmtT->execute([$this->getAmount(), $uid, $ruid, $this->getTType()]);
                 $stmtU->execute([$newSenderBalance,$uid]);
@@ -43,8 +43,8 @@
                 $pdo->beginTransaction();
                 
                 //prepare queries
-                $stmtT = $pdo->prepare("insert into transaction (amount, uid, aid, ttype) values (?,?,?,?)");
-                $stmtU = $pdo->prepare("update user set balance=? where uid=?");
+                $stmtT = $pdo->prepare("INSERT INTO transaction (amount, uid, aid, ttype) VALUES (?,?,?,?)");
+                $stmtU = $pdo->prepare("UPDATE user SET balance=? WHERE uid=?");
                 
                 //execute queries 
                 $stmtT->execute([$this->getAmount(), $uid, $aid, $this->getTType()]);
@@ -54,7 +54,7 @@
             } catch (PDOException $e){
                 $pdo->rollBack();
                 //echo $e->getMessage();
-                return "An error occured";
+                return "An error occurred";
             }
         }
     }
