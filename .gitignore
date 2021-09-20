@@ -4,3 +4,4 @@ vendor/
 .htaccess
 home.php
 /nbproject/
+.idea
