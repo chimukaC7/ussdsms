@@ -10,7 +10,7 @@
         static $GO_BACK = "98";
         static $GO_TO_MAIN_MENU = "99";
 
-        //user intial balance 
+        //user initial balance
         static $USER_BALANCE = 0.0;
 
         static $COUNTRY_CODE = "";
@@ -28,7 +28,7 @@
         static $SMS_SHORTCODE_KEYWORD = ""; //prod.
         static $COMPANY_NAME = " ";
     }
-?>
+
 
 
 
