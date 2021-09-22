@@ -43,10 +43,12 @@
 
         public function register($pdo){
            try{
-                //hash the pin 
-                $hashedPin = password_hash($this->getPin(), PASSWORD_DEFAULT);
+
+                $hashedPin = password_hash($this->getPin(), PASSWORD_DEFAULT);//hash the pin
+
                 $stmt = $pdo->prepare("INSERT INTO user (name, pin, phone, balance) VALUES(?,?,?,?)");
                 $stmt->execute([$this->getName(),$hashedPin, $this->getPhone(),$this->getBalance()]);
+
                 //send an sms to a user 
                 //$sms = new Sms($this->getPhone());
                 //$sms->sendSMS("You have been registered",$this->getPhone());
@@ -57,7 +59,7 @@
         }
 
         public function isUserRegistered($pdo){
-           $stmt = $pdo->prepare("SELECT * FROM user WHERE phone=?");
+           $stmt = $pdo->prepare("SELECT name FROM user WHERE phone=?");
            $stmt->execute([$this->getPhone()]);
            if(count($stmt->fetchAll()) > 0){
                return true;
@@ -66,21 +68,21 @@
            }
         }
 
-        public function readName($pdo){
-            $stmt = $pdo->prepare("SELECT * FROM user WHERE phone=?");
+        public function getUserName($pdo){
+            $stmt = $pdo->prepare("SELECT name FROM user WHERE phone=?");
             $stmt->execute([$this->getPhone()]);
             $row = $stmt->fetch();
             return $row['name'];
         }
 
-        public function readUserId($pdo){
+        public function getUserId($pdo){
            $stmt = $pdo->prepare("SELECT uid FROM user WHERE phone=?");
            $stmt->execute([$this->getPhone()]);
            $row = $stmt->fetch();
            return $row['uid'];
         }
 
-        public function correctPin($pdo){
+        public function isPinVerified($pdo){
            $stmt = $pdo->prepare("SELECT pin FROM user WHERE phone=?");
            $stmt->execute([$this->getPhone()]);
            $row = $stmt->fetch();
@@ -103,4 +105,3 @@
         }
 
     }
-?>

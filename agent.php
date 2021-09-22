@@ -33,7 +33,7 @@
             }
         }
         
-        public function readIdByNumber($pdo) {
+        public function getIdByNumber($pdo) {
              //returns the aid if found, false otherwise
             $stmt = $pdo->prepare ("SELECT aid FROM agent WHERE agentNumber=?");
             $stmt->execute([$this->getNumber()]);

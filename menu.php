@@ -1,7 +1,6 @@
 <?php
 include_once 'util.php';
 include_once 'user.php';
-include_once 'util.php';
 include_once 'transactions.php';
 include_once 'agent.php';
 include_once 'sms.php';
@@ -17,7 +16,8 @@ class Menu
 
     public function mainMenuRegistered($name)
     {
-        $response = "Welcome " . $name . " Reply with\n";
+        $response = "Welcome " . $name . ", please select option\n";
+        //$response .= "";
         $response .= "1. Send money\n";
         $response .= "2. Withdraw\n";
         $response .= "3. Check balance\n";
@@ -34,6 +34,7 @@ class Menu
     public function registerMenu($textArray, $phoneNumber, $pdo)
     {
         $level = count($textArray);
+
         if ($level == 1) {
             echo "CON Please enter your full name:";
         } else if ($level == 2) {
@@ -55,6 +56,7 @@ class Menu
                 $user->setPin($pin);
                 $user->setBalance(Util::$USER_BALANCE);
                 $user->register($pdo);
+
                 echo "END You have been registered";
             }
 
@@ -79,7 +81,7 @@ class Menu
             $receiverMobile = $textArray[1];
             $receiverMobileWithCountryCode = $this->addCountryCodeToPhoneNumber($receiverMobile);
             $receiver = new User($receiverMobileWithCountryCode);
-            $nameOfReceiver = $receiver->readName($pdo);
+            $nameOfReceiver = $receiver->getUserName($pdo);
 
             //confirmation message
             $response .= "Send " . $textArray[2] . " to " . $nameOfReceiver . " - " . $receiverMobile . "\n";
@@ -107,7 +109,7 @@ class Menu
                 //send sms as well
             } else {
                 $txn = new Transaction($amount, $ttype);
-                $result = $txn->sendMoney($pdo, $sender->readUserId($pdo), $receiver->readUserId($pdo), $newSenderBalance, $newReceiverBalance);
+                $result = $txn->sendMoney($pdo, $sender->readUserId($pdo), $receiver->getUserId($pdo), $newSenderBalance, $newReceiverBalance);
                 if ($receiver == true) {
                     echo "END We are processing your request. You will receive an SMS shortly";
                     //send an sms as well
@@ -123,11 +125,19 @@ class Menu
         } else if ($level == 5 && $textArray[4] == Util::$GO_TO_MAIN_MENU) {
             echo "END You have requested to back to main menu";
         } else {
-            echo "END Invalid entry";
+            //echo "END Invalid entry";
+
+            $ussdLevel = count($textArray) - 1;
+            $this->persistInvalidEntry($sessionId,$sender, $ussdLevel,$pdo);
+
+            $response = "CON Invalid entry. Please try again\n" ;
+            //$response .=  $this->mainMenuRegistered($sender->getUserName($pdo));
+            echo $response;
+            $this->sendMoneyMenu($textArray, $sender, $pdo, $sessionId);
         }
     }
 
-    public function withdrawMoneyMenu($textArray, $user, $pdo)
+    public function withdrawMoneyMenu($textArray, $user, $pdo,$sessionId)
     {
         $level = count($textArray);
         $response = "";
@@ -166,7 +176,7 @@ class Menu
             $ttype = "withdraw";
             $txn = new Transaction($textArray[2], $ttype);
             $newBalance = $user->checkBalance($pdo) - $textArray[2] - Util::$TRANSACTION_FEE;
-            $result = $txn->withDrawCash($pdo, $user->readUserId($pdo), $agent->readIdByNumber($pdo), $newBalance);
+            $result = $txn->withDrawCash($pdo, $user->readUserId($pdo), $agent->getIdByNumber($pdo), $newBalance);
 
             if ($result) {
                 echo "END Your request is being processed";
@@ -177,13 +187,21 @@ class Menu
         } else if ($level == 5 && $textArray[4] == 2) {//Cancel
             echo "END Thank you for using our service";
         } else {
-            echo "END Invalid entry";
+            //echo "END Invalid entry";
+
+            $ussdLevel = count($textArray) - 1;
+            $this->persistInvalidEntry($sessionId,$user, $ussdLevel,$pdo);
+
+            $response = "CON Invalid entry. Please try again\n" ;
+            $response .=  $this->mainMenuRegistered($user->getUserName($pdo));
+            echo $response;
         }
     }
 
-    public function checkBalanceMenu($textArray, $user, $pdo)
+    public function checkBalanceMenu($textArray, $user, $pdo, $sessionId)
     {
         $level = count($textArray);
+
         if ($level == 1) {
             echo "CON Enter your PIN";
         } else if ($level == 2) {
@@ -191,7 +209,7 @@ class Menu
             //check PIN correctness etc
             //$pin = $textArray[1];
             $user->setPin($textArray[1]);
-            if ($user->correctPin($pdo) == true) {
+            if ($user->isPinVerified($pdo)) {
 
                 $msg = "Your wallet balance is " . $user->checkBalance($pdo) . ". Thank you for using this service";//send an sms
                 $sms = new Sms($user->getPhone());
@@ -207,13 +225,18 @@ class Menu
             }
 
         } else {
-            echo "END Invalid entry";
+            //echo "END Invalid entry";
+
+            $response = "CON Invalid entry. Please try again\n" ;
+            $response .=  $this->mainMenuRegistered($user->getUserName($pdo));
+            echo $response;
         }
     }
 
     public function middleware($text, $user, $sessionId, $pdo)
     {
         //remove entries for going back and going to the main menu
+
         return $this->invalidEntry($this->goBack($this->goToMainMenu($text)), $user, $sessionId, $pdo);
     }
 
@@ -247,10 +270,11 @@ class Menu
     public function persistInvalidEntry($sessionId, $user, $ussdLevel, $pdo)
     {
         $stmt = $pdo->prepare("INSERT INTO ussdsession (sessionId,ussdLevel, uid) VALUES (?,?,?)");
-        $stmt->execute([$sessionId, $ussdLevel, $user->readUserId($pdo)]);
+        $stmt->execute([$sessionId, $ussdLevel, $user->getUserId($pdo)]);
         $stmt = null;
     }
 
+    //removes invalid input that were captured
     public function invalidEntry($ussdStr, $user, $sessionId, $pdo)
     {
         $stmt = $pdo->prepare("SELECT ussdLevel FROM ussdsession WHERE sessionId=?");
@@ -258,12 +282,14 @@ class Menu
         $result = $stmt->fetchAll();
 
         if (count($result) == 0) {
-            return $ussdStr;
+            return $ussdStr;//there are no invalid options
         }
 
-        $strArray = explode("*", $ussdStr);
+        $strArray = explode("*", $ussdStr);//return an array having all the inputs including the invalid ones
 
+        //removing invalid menu options from user USSD string
         foreach ($result as $value) {
+            //remove a ussd level
             unset($strArray[$value['ussdLevel']]);
         }
 

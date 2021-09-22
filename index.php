@@ -10,8 +10,9 @@
     $phoneNumber = trim($_POST["phoneNumber"]);//mobile number of the user
     $text        = trim($_POST["text"]);//what the user enters
 
-   
+   //create object for User
     $user = new User($phoneNumber);
+
     $db = new DBConnector();
     $pdo = $db->connectToDB();
 
@@ -20,9 +21,9 @@
     $text = $menu->middleware($text, $user, $sessionId, $pdo);
 
     //user is registered and string is is empty
-    if($text == "" && $user->isUserRegistered($pdo) == true){
+    if($text == "" && $user->isUserRegistered($pdo)){
 
-        echo "CON " . $menu->mainMenuRegistered($user->readName($pdo));
+        echo "CON " . $menu->mainMenuRegistered($user->getUserName($pdo));
 
     //user is unregistered and string is is empty
     }else if($text == "" && $user->isUserRegistered($pdo) == false){
@@ -38,7 +39,14 @@
                 $menu->registerMenu($textArray, $phoneNumber,$pdo);
             break;
             default:
-                echo "END Invalid choice. Please try again";
+                //echo "END Invalid choice. Please try again";
+
+                $ussdLevel = count($textArray) - 1;
+                $menu->persistInvalidEntry($sessionId,$user, $ussdLevel,$pdo);
+
+                $response = "CON Invalid entry. Please try again\n" ;
+                $response .= $menu->mainMenuRegistered($user->getUserName($pdo));
+                echo $response;
         }
 
     }else{
@@ -49,15 +57,20 @@
                 $menu->sendMoneyMenu($textArray,$user,$pdo,$sessionId);
             break;
             case 2: //withdraw money
-                $menu->withdrawMoneyMenu($textArray,$user,$pdo);
+                $menu->withdrawMoneyMenu($textArray,$user,$pdo,$sessionId);
             break;
             case 3://check balance
-                $menu->checkBalanceMenu($textArray,$user,$pdo);
+                $menu->checkBalanceMenu($textArray,$user,$pdo, $sessionId);
                 break;
             default:
+                //persisting user invalid menu option in a database
+
                 $ussdLevel = count($textArray) - 1;
                 $menu->persistInvalidEntry($sessionId,$user, $ussdLevel,$pdo);
-                echo "CON Invalid menu\n" . $menu->mainMenuRegistered($user->readName($pdo));
+
+                $response = "CON Invalid entry. Please try again\n" ;
+                $response .= $menu->mainMenuRegistered($user->getUserName($pdo));
+                echo $response;
         }
     }
 
