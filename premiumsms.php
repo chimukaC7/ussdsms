@@ -18,4 +18,3 @@
         $sms->unSubscribeUser($pdo, $shortCode,$keyword);
     }
 
-?>

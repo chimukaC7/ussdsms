@@ -1,39 +1,46 @@
 <?php
     class Transaction{
         protected $amount;
-        protected $ttype;
+        protected $transaction_type;
 
-        function __construct($amount, $ttype)
+        function __construct($amount, $transaction_type)
         {
             $this->amount = $amount;
-            $this->ttype = $ttype;
+            $this->transaction_type = $transaction_type;
         }
 
         public function getAmount(){
             return $this->amount;
         }
 
-        public function getTType(){
-            return $this->ttype;
+        public function getTransactionType(){
+            return $this->transaction_type;
         }
 
         public function sendMoney($pdo, $uid, $ruid, $newSenderBalance, $newReceiverBalance){
-            $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, FALSE);
-            try{
-                $pdo->beginTransaction();
-                $stmtT = $pdo->prepare("INSERT INTO transaction (amount, uid, ruid, ttype) VALUES(?,?,?,?)");
-                $stmtU = $pdo->prepare("UPDATE USER SET balance=? WHERE uid=?");
 
-                $stmtT->execute([$this->getAmount(), $uid, $ruid, $this->getTType()]);
-                $stmtU->execute([$newSenderBalance,$uid]);
-                $stmtU->execute([$newReceiverBalance,$ruid]);
+            $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, FALSE);
+
+            try{
+
+                $pdo->beginTransaction();
+
+                $stmtT = $pdo->prepare("INSERT INTO transaction (amount, uid, ruid, ttype) VALUES(?,?,?,?)");
+                $stmtU = $pdo->prepare("UPDATE USER SET balance=? WHERE uid=?");//executed twice with different values
+
+                $stmtT->execute([$this->getAmount(), $uid, $ruid, $this->getTransactionType()]);
+                $stmtU->execute([$newSenderBalance,$uid]);//sender
+                $stmtU->execute([$newReceiverBalance,$ruid]);//receiver
 
                 $pdo->commit();
+
                 return true;
+
             }catch(Exception $e){
                 $pdo->rollBack();
                 return "An error was encountered";
             }
+
         }
 
         public function withDrawCash($pdo, $uid, $aid, $newBalance){
@@ -47,9 +54,11 @@
                 $stmtU = $pdo->prepare("UPDATE user SET balance=? WHERE uid=?");
                 
                 //execute queries 
-                $stmtT->execute([$this->getAmount(), $uid, $aid, $this->getTType()]);
+                $stmtT->execute([$this->getAmount(), $uid, $aid, $this->getTransactionType()]);
                 $stmtU->execute([$newBalance,$uid]);
+
                 $pdo->commit();
+
                 return true;
             } catch (PDOException $e){
                 $pdo->rollBack();
@@ -59,4 +68,3 @@
         }
     }
 
-?>

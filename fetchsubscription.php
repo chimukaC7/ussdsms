@@ -9,7 +9,7 @@
         $db = new DBConnector();
         $pdo = $db->connectToDB();
     
-        $sms = new Sms('073XXX');
+        $sms = new Sms('073XXX');//dummy number
 
         echo json_encode($sms->fecthNewSubscribers($pdo,$shortcode,$keyword));
 ?>

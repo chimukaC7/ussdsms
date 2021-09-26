@@ -9,7 +9,6 @@
     $db = new DBConnector();
     $pdo = $db->connectToDB();
 
-    $sms = new Sms($phoneNumber);
+    $sms = new Sms($phoneNumber);//use the object to call subscribeUserWithToken()
 
     echo json_encode($sms->subscribeUserWithToken($shortcode,$keyword,$phoneNumber));
-?>

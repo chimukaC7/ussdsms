@@ -80,11 +80,11 @@ class Menu
 
             $receiverMobile = $textArray[1];
             $receiverMobileWithCountryCode = $this->addCountryCodeToPhoneNumber($receiverMobile);
+
             $receiver = new User($receiverMobileWithCountryCode);
-            $nameOfReceiver = $receiver->getUserName($pdo);
 
             //confirmation message
-            $response .= "Send " . $textArray[2] . " to " . $nameOfReceiver . " - " . $receiverMobile . "\n";
+            $response .= "Send " . $textArray[2] . " to " . $receiver->getUserName($pdo) . " - " . $receiverMobile . "\n";
             $response .= "1. Confirm\n";
             $response .= "2. Cancel\n";
             $response .= Util::$GO_BACK . " Back\n";
@@ -96,26 +96,32 @@ class Menu
             //send the money plus process
             //check if PIN correct
             //If you have enough funds including charges etc..
-            $pin = $textArray[3];
             $amount = $textArray[2];
-            $ttype = "send";
-            $sender->setPin($pin);
-            $newSenderBalance = $sender->checkBalance($pdo) - $amount - Util::$TRANSACTION_FEE;
-            $receiver = new User($this->addCountryCodeToPhoneNumber($textArray[1]));
-            $newReceiverBalance = $receiver->checkBalance($pdo) + $amount;
+            $pin = $textArray[3];
+            $transaction_type = "send";
 
-            if ($sender->correctPin($pdo) == false) {
+            $sender->setPin($pin);
+
+            $newSenderBalance = $sender->getUserBalance($pdo) - $amount - Util::$TRANSACTION_FEE;//sender balance afterwards
+
+            $receiver = new User($this->addCountryCodeToPhoneNumber($textArray[1]));
+            $newReceiverBalance = $receiver->getUserBalance($pdo) + $amount;
+
+            if ($sender->isPinVerified($pdo) == false) {
                 echo "END Wrong PIN";
                 //send sms as well
             } else {
-                $txn = new Transaction($amount, $ttype);
-                $result = $txn->sendMoney($pdo, $sender->readUserId($pdo), $receiver->getUserId($pdo), $newSenderBalance, $newReceiverBalance);
-                if ($receiver == true) {
+
+                $transaction = new Transaction($amount, $transaction_type);
+                $result = $transaction->sendMoney($pdo, $sender->readUserId($pdo), $receiver->getUserId($pdo), $newSenderBalance, $newReceiverBalance);
+
+                if ($result == true) {
                     echo "END We are processing your request. You will receive an SMS shortly";
                     //send an sms as well
                 } else {
                     echo "CON " . $result;
                 }
+
             }
 
         } else if ($level == 5 && $textArray[4] == 2) { //Cancel
@@ -150,11 +156,10 @@ class Menu
             echo "CON Enter your PIN:";
         } else if ($level == 4) {
             //TODO: confirm if agent exists
-            $agent = new Agent($textArray[1]);
-            $agentName = $agent->getNameByNumber($pdo);
+            $agent = new Agent($textArray[1]);//passing agent number
 
             //confirmation message
-            $response .= "Withdraw " . $textArray[2] . " from agent " . $agentName . "\n";
+            $response .= "Withdraw " . $textArray[2] . " from agent " . $agent->getNameByNumber($pdo) . "\n";
             $response .= "1. Confirm\n";
             $response .= "2. Cancel\n";
             echo "CON " . $response;
@@ -162,11 +167,12 @@ class Menu
         } else if ($level == 5 && $textArray[4] == 1) {//confirm
 
             $user->setPin($textArray[3]);
-            if ($user->correctPin($pdo) == false) {
-                echo "END Wrong";// or send an sms
+
+            if ($user->isPinVerified($pdo) == false) {
+                echo "END Wrong Pin";// or send an sms
                 return;
             }
-            if ($user->checkBalance($pdo) < $textArray[2] + Util::$TRANSACTION_FEE) {
+            if ($user->getUserBalance($pdo) < $textArray[2] + Util::$TRANSACTION_FEE) {
                 echo "END You have insufficient funds";
                 return;
             }
@@ -174,9 +180,12 @@ class Menu
             $agent = new Agent($textArray[1]);
             $agentName = $agent->getNameByNumber($pdo);
             $ttype = "withdraw";
-            $txn = new Transaction($textArray[2], $ttype);
-            $newBalance = $user->checkBalance($pdo) - $textArray[2] - Util::$TRANSACTION_FEE;
-            $result = $txn->withDrawCash($pdo, $user->readUserId($pdo), $agent->getIdByNumber($pdo), $newBalance);
+
+            $transaction = new Transaction($textArray[2], $ttype);
+
+            $newBalance = $user->getUserBalance($pdo) - $textArray[2] - Util::$TRANSACTION_FEE;
+
+            $result = $transaction->withDrawCash($pdo, $user->readUserId($pdo), $agent->getIdByNumber($pdo), $newBalance);
 
             if ($result) {
                 echo "END Your request is being processed";
@@ -211,7 +220,7 @@ class Menu
             $user->setPin($textArray[1]);
             if ($user->isPinVerified($pdo)) {
 
-                $msg = "Your wallet balance is " . $user->checkBalance($pdo) . ". Thank you for using this service";//send an sms
+                $msg = "Your wallet balance is " . $user->getUserBalance($pdo) . ". Thank you for using this service";//send an sms
                 $sms = new Sms($user->getPhone());
                 $result = $sms->sendSMS($msg, $user->getPhone());
 

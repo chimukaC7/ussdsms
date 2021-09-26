@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>Sending premium SMS</title>
     </head>
     <body>
 
         <form method="POST" action="sendPremiumSms.php">
+            
             Shortcode: <input type="text" name="shortcode" required> <br><br>
-            Keyword: <input type="text" name="keyword" required> <br><br>
-            Message: <input type="text" name="message" required> <br><br>
+            Keyword: <input type="text" name="keyword" minlength="3" maxlength="12" required> <br><br>
+            Message: <input type="text" name="message" maxlength="160" minlength="3" required> <br><br>
 
             <input type="submit" name="submit_btn" value="Send premium SMS">
 

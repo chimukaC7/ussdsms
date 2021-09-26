@@ -30,6 +30,8 @@
                 'from'    => Util::$SMS_SHORTCODE,
                 'keyword' => Util::$SMS_SHORTCODE_KEYWORD
             ]);
+            //  'from'    => Util::$SMS_SHORTCODE, meaning recipients can respond to the message
+            //  'from'    => Util::$SENDER_ID, meaning recipients can not respond to the message
             return $result;
         }
 
@@ -53,7 +55,7 @@
         public function subscribeUser ($pdo, $shortcode, $keyword){
             $stmt = $pdo->prepare('INSERT INTO subscribers (phoneNumber, shortcode,keyword,isActive) VALUES(?,?,?,?)');
             $stmt->execute([$this->getPhone(), $shortcode, $keyword, 1]);
-            $stmt = null;
+            $stmt = null;//terminating the db connection
         }
 
 
@@ -65,6 +67,7 @@
 
         public function sendPremiumSms ($pdo, $shortcode, $keyword, $message){
             $recipients = $this->fetchActivePhoneNumbers($pdo, $shortcode, $keyword);
+
             $content = $this->AT->content();
             $response = $content->send([
                 'message'=> $message,
@@ -72,6 +75,7 @@
                 'from'=>$shortcode,
                 'keyword' => $keyword
             ]);
+
             return $response;
         }
 
@@ -79,23 +83,26 @@
             $stmt= $pdo->prepare('SELECT phoneNumber FROM subscribers WHERE isActive=? AND shortcode=? AND keyword=?');
             $stmt->execute([1, $shortcode, $keyword]);
             $activePhoneNumbers = $stmt->fetchAll();
-            $recipients = array();
+            $recipients = [];
 
             foreach($activePhoneNumbers as $phone){
                 array_push($recipients, $phone['phoneNumber']);
             }
-            return $recipients;
+
+            return $recipients;//return an array
         }
         
         public function subscribeUserWithToken ($shortcode, $keyword, $phone){
+            //subscribing users with checkout token functionality
             $content = $this->AT->content();
             $checkoutToken = $this->getToken($phone);
             $response = $content->createSubscription([
                 'shortCode'=>$shortcode,
                 'keyword'=>$keyword,
-                'phoneNumber'=>$phone,
+                'phoneNumber'=>$phone,//that you wish to get a checkout token for
                 'checkoutToken'=>$checkoutToken
             ]);
+
             return $response;
         }
 
@@ -109,14 +116,14 @@
             return $checkoutToken;
         }        
 
-        
+        //ping the gateway to get users who have subscribed
         public function fecthNewSubscribers($pdo, $shortcode, $keyword){
             $content = $this->AT->content();
 
             $responseArray = $content->fetchSubscriptions([
                 'shortCode'=>$shortcode,
                 'keyword'=>$keyword,
-                'lastReceivedId'=>0,
+                'lastReceivedId'=>0,//fetch everything
             ])['data']->responses;
 
             foreach($responseArray as $res){

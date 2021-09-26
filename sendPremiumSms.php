@@ -3,7 +3,7 @@
     include_once 'sms.php';
 
 
-    $sms = new Sms('08634533');
+    $sms = new Sms('08634533');//dummy number
     $db = new DBConnector();
     $pdo = $db->connectToDB();
 

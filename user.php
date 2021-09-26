@@ -97,7 +97,7 @@
            return false;
         }
 
-        public function checkBalance($pdo){
+        public function getUserBalance($pdo){
             $stmt = $pdo->prepare("SELECT balance FROM user WHERE phone=?");
             $stmt->execute([$this->getPhone()]);
             $row = $stmt->fetch();
