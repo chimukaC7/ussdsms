@@ -214,13 +214,15 @@ class Menu
         $level = count($textArray);
 
         if ($level == 1) {
+            
             echo "CON Enter your PIN";
+
         } else if ($level == 2) {
             //logic
             //check PIN correctness etc
             //$pin = $textArray[1];
             $user->setPin($textArray[1]);
-            
+
             if ($user->isPinVerified($pdo)) {
 
                 $msg = "Your wallet balance is " . $user->getUserBalance($pdo) . ". Thank you for using this service";//send an sms
@@ -232,6 +234,7 @@ class Menu
                 } else {
                     echo "END There was an error. Please try again";
                 }
+                
             } else {
                 echo "END Wrong PIN";// send sms
             }
