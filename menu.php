@@ -16,7 +16,7 @@ class Menu
 
     public function mainMenuRegistered($name)
     {
-        $response = "Welcome " . $name . ", please select option\n";
+        $response = "CON Welcome " . $name . ", please select option\n";
         //$response .= "";
         $response .= "1. Send money\n";
         $response .= "2. Withdraw\n";
@@ -33,12 +33,13 @@ class Menu
 
     public function registerMenu($textArray, $phoneNumber, $pdo)
     {
+        //to determine the level
         $level = count($textArray);
 
         if ($level == 1) {
             echo "CON Please enter your full name:";
         } else if ($level == 2) {
-            echo "CON Please enter you PIN:";
+            echo "CON Please enter your PIN:";
         } else if ($level == 3) {
             echo "CON Please re-enter your PIN:";
         } else if ($level == 4) {
@@ -145,6 +146,7 @@ class Menu
 
     public function withdrawMoneyMenu($textArray, $user, $pdo,$sessionId)
     {
+        //the level shows how many times the user has replied
         $level = count($textArray);
         $response = "";
 
@@ -218,6 +220,7 @@ class Menu
             //check PIN correctness etc
             //$pin = $textArray[1];
             $user->setPin($textArray[1]);
+            
             if ($user->isPinVerified($pdo)) {
 
                 $msg = "Your wallet balance is " . $user->getUserBalance($pdo) . ". Thank you for using this service";//send an sms
