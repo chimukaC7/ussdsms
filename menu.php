@@ -1,8 +1,8 @@
 <?php
 include_once 'util.php';
-include_once 'user.php';
-include_once 'transactions.php';
-include_once 'agent.php';
+include_once 'model\user.php';
+include_once 'model\transactions.php';
+include_once 'model\agent.php';
 include_once 'sms.php';
 
 class Menu
@@ -234,7 +234,7 @@ class Menu
                 } else {
                     echo "END There was an error. Please try again";
                 }
-                
+
             } else {
                 echo "END Wrong PIN";// send sms
             }

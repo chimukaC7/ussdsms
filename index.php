@@ -2,7 +2,7 @@
     // http://6d576a762ed0.ngrok.io/ussdsms/index.php
     include_once 'menu.php';
     include_once 'db.php';
-    include_once 'user.php';
+    include_once 'model\user.php';
 
     require __DIR__ . './vendor/autoload.php';
 
