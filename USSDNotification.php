@@ -1,5 +1,5 @@
 <?php
-    include_once 'db.php';
+    include_once 'util/db.php';
     $date = $_POST['date'];
     $sessionId = $_POST['sessionId'];
     $serviceCode = $_POST['serviceCode'];
@@ -16,8 +16,8 @@
     $db = new DBConnector();
     $pdo = $db->connectToDB();
     saveUssdNotification($pdo,$date, $sessionId,$serviceCode,$networkCode, $phoneNumber, $status,$cost, $durationInMillis,$input,$lastAppResponse,$errorMessage);
-   
-    function saveUssdNotification($pdo,$date, $sessionId,$serviceCode,$networkCode, 
+
+    function saveUssdNotification($pdo,$date, $sessionId,$serviceCode,$networkCode,
     $phoneNumber, $status,$cost, $durationInMillis,$input,$lastAppResponse,$errorMessage){
         $stmt = $pdo->prepare('INSERT INTO ussdnotifications (date_,sessionId,serviceCode,networkCode, phoneNumber,status,cost,durationInMillis,input,lastAppResponse,errorMessage) 
         VALUES (?,?,?,?,?,?,?,?,?,?,?)');

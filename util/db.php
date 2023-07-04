@@ -1,5 +1,5 @@
 <?php
-include_once './util.php';
+include_once 'util.php';
 
 class DBConnector
 {

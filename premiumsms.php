@@ -1,6 +1,6 @@
 <?php
-    include_once 'sms.php';
-    include_once 'db.php';
+    include_once 'util/sms.php';
+    include_once 'util/db.php';
 
     $phoneNumber = $_POST['phoneNumber'];
     $shortCode = $_POST['shortCode'];

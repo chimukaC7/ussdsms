@@ -2,9 +2,9 @@
 //when the gateway receives a msg from the user, it sends that msg to this script
 //for testing you can use postman,construct the data that you expect to receive
 
-       include_once 'db.php';
-       include_once 'util.php';
-       include_once 'user.php';
+       include_once 'util/db.php';
+       include_once 'util/util.php';
+       include_once 'model/user.php';
        
        //receive data from the gateway 
        $phoneNumber = $_POST['from'];

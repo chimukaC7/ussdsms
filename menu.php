@@ -1,9 +1,9 @@
 <?php
-include_once 'util.php';
+include_once 'util/util.php';
 include_once 'model\user.php';
 include_once 'model\transactions.php';
 include_once 'model\agent.php';
-include_once 'sms.php';
+include_once 'util/sms.php';
 
 class Menu
 {

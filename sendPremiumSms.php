@@ -1,6 +1,6 @@
 <?php
-    include_once 'db.php';
-    include_once 'sms.php';
+    include_once 'util/db.php';
+    include_once 'util/sms.php';
 
 
     $sms = new Sms('08634533');//dummy number
