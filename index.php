@@ -64,6 +64,8 @@
                 //echo "END Invalid choice. Please try again";
 
                 $ussdLevel = count($textArray) - 1;
+
+                //when user enters an invalid entry, we persist it to the database
                 $menu->persistInvalidEntry($sessionId,$user, $ussdLevel,$pdo);
 
                 $response = "CON Invalid entry. Please try again\n" ;

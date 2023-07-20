@@ -16,7 +16,7 @@ class Menu
 
     public function mainMenuRegistered($name)
     {
-        $response = "CON Welcome " . $name . ", please select option\n";
+        $response = "Welcome " . $name . ", please select option\n";
         //$response .= "";
         $response .= "1. Send money\n";
         $response .= "2. Withdraw\n";
